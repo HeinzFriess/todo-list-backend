@@ -21,5 +21,5 @@ from todolist.views import loginview
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', loginview.as_view),
+    path('login/', loginview.as_view()),
 ]
