@@ -24,15 +24,6 @@ class TodoItemView(APIView):
         serializer = TodoItemSerializer(todos, many=True)
         return Response(serializer.data)
     
-    def get_object(self, todo_id, user_id):
-        '''
-        Helper method to get the object with given todo_id, and user_id
-        '''
-        try:
-            return TodoItem.objects.get(id=todo_id, author = user_id)
-        except TodoItem.DoesNotExist:
-            return None
-
     def post(self, request, *args, **kwargs):
         '''
         Create the Todo with given todo data
@@ -48,6 +39,30 @@ class TodoItemView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+class TodoDetailView(APIView):
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, todo_id, format=None):
+        """
+        Return a list of the users todos.
+        """
+        todos = TodoItem.objects.filter(author=request.user) 
+        todo = todos.filter(id=todo_id)
+        serializer = TodoItemSerializer(todo, many=True)
+        return Response(serializer.data)
+    
+    def get_object(self, todo_id, user_id):
+        '''
+        Helper method to get the object with given todo_id, and user_id
+        '''
+        try:
+            return TodoItem.objects.get(id=todo_id, author = user_id)
+        except TodoItem.DoesNotExist:
+            return None
+
     def put(self, request, todo_id, *args, **kwargs):
         '''
         Updates the todo item with given todo_id if exists
@@ -86,7 +101,7 @@ class TodoItemView(APIView):
             {"res": "Object deleted!"},
             status=status.HTTP_200_OK
         )
-    
+   
 class loginview(ObtainAuthToken):
     
     def post(self, request): #, *args, **kwargs):
